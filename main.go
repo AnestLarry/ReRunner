@@ -13,7 +13,7 @@ import (
 var (
 	RRSettingsFileNameString = "./RRSetting.json"
 	TemplateBytes, _         = json.Marshal(RRSTemplate)
-	Version                  = "Mar 24,2020."
+	Version                  = "Mar 26,2020."
 	RRSettings               = map[string]interface{}{}
 	wg                       sync.WaitGroup
 
@@ -21,11 +21,11 @@ var (
 		"Tasks": []interface{}{
 			map[string]interface{}{
 				"WatchFiles":  map[string]string{"filename1": "filehash", "filename2": "filehash"},
-				"RunCommands": [][]string{[]string{"cmd.exe", "/c", "cls"}, []string{"cmd.exe", "/c", "dir"}},
+				"RunCommands": [][]string{[]string{"cmd.exe", "/c", "cls"}, []string{"powershell.exe", "clear"}},
 			},
 			map[string]interface{}{
 				"WatchFiles":  map[string]string{"filename3": "filehash", "filename4": "filehash"},
-				"RunCommands": [][]string{[]string{"cmd.exe", "/c", "cls"}, []string{"cmd.exe", "/c", "dir"}},
+				"RunCommands": [][]string{[]string{"terminal", "clear"}, []string{"clear"}},
 			},
 		},
 		"ByLine":  false,
@@ -62,7 +62,7 @@ func Init() {
 			panic(err)
 		}
 		json.Unmarshal(data, &RRSettings)
-		if RRSettings["Version"].(string) != Version {
+		if RRSettings["Version"] != nil && RRSettings["Version"].(string) != Version {
 			panic("RRSettings.json doesn't feat current program version.")
 		}
 	} else {
@@ -90,7 +90,6 @@ endcheck:
 }
 
 func RunCommands(task interface{}) {
-	libs.LibsXClear()
 	for _, v := range task.(map[string]interface{})["RunCommands"].([]interface{}) {
 		var cArgs []string
 		for _, value := range v.([]interface{}) {
